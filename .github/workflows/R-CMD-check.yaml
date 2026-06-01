@@ -39,6 +39,20 @@ jobs:
           r-version: ${{ matrix.config.r }}
           http-user-agent: ${{ matrix.config.http-user-agent }}
 
+      - name: Remove Remotes field for CI
+        run: |
+          desc <- readLines("DESCRIPTION")
+          in_remotes <- FALSE
+          out <- c()
+          for (line in desc) {
+            if (grepl("^Remotes:", line)) { in_remotes <- TRUE; next }
+            if (in_remotes && grepl("^  ", line)) { next }
+            in_remotes <- FALSE
+            out <- c(out, line)
+          }
+          writeLines(out, "DESCRIPTION")
+        shell: Rscript {0}
+
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           extra-packages: any::rcmdcheck any::remotes
