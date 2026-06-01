@@ -39,9 +39,10 @@ jobs:
           r-version: ${{ matrix.config.r }}
           http-user-agent: ${{ matrix.config.http-user-agent }}
 
-      - name: Remove Remotes field for CI
+      - name: Strip GitHub-only deps from DESCRIPTION for pak
         run: |
           desc <- readLines("DESCRIPTION")
+          # Remove Remotes: block
           in_remotes <- FALSE
           out <- c()
           for (line in desc) {
@@ -50,7 +51,15 @@ jobs:
             in_remotes <- FALSE
             out <- c(out, line)
           }
+          # Remove ebpm and smashrgen from Imports:
+          out <- gsub(",?\\s*\\bebpm\\b,?", "", out)
+          out <- gsub(",?\\s*\\bsmashrgen\\b,?", "", out)
+          # Clean up any double commas or trailing commas in Imports
+          out <- gsub(",\\s*,", ",", out)
+          out <- gsub(",\\s*$", "", out)
           writeLines(out, "DESCRIPTION")
+          cat("--- Modified DESCRIPTION ---\n")
+          cat(readLines("DESCRIPTION"), sep = "\n")
         shell: Rscript {0}
 
       - uses: r-lib/actions/setup-r-dependencies@v2
@@ -61,8 +70,10 @@ jobs:
 
       - name: Install GitHub dependencies
         run: |
-          remotes::install_github("DongyueXie/ebpm", upgrade = "never", dependencies = TRUE)
-          remotes::install_github("DongyueXie/smashrgen", upgrade = "never", dependencies = TRUE)
+          remotes::install_github("DongyueXie/vebpm", upgrade = "never")
+          remotes::install_github("stephenslab/mr.ash", upgrade = "never")
+          remotes::install_github("DongyueXie/ebpm", upgrade = "never")
+          remotes::install_github("DongyueXie/smashrgen", upgrade = "never")
         shell: Rscript {0}
 
       - uses: r-lib/actions/check-r-package@v2
