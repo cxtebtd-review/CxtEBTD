@@ -39,30 +39,21 @@ jobs:
           r-version: ${{ matrix.config.r }}
           http-user-agent: ${{ matrix.config.http-user-agent }}
 
-      - name: Strip GitHub-only deps from DESCRIPTION for pak
+      - name: Install system dependencies (Linux only)
+        if: runner.os == 'Linux'
         run: |
-          install.packages("desc", repos = "https://cloud.r-project.org")
-          d <- desc::desc("DESCRIPTION")
-          d$del_dep("ebpm")
-          d$del_dep("smashrgen")
-          d$del("Remotes")
-          d$write()
-          cat("--- Modified DESCRIPTION ---\n")
-          cat(readLines("DESCRIPTION"), sep = "\n")
-        shell: Rscript {0}
+          sudo apt-get update
+          sudo apt-get install -y libcurl4-openssl-dev libssl-dev libxml2-dev libfontconfig1-dev libharfbuzz-dev libfribidi-dev
 
-      - uses: r-lib/actions/setup-r-dependencies@v2
-        with:
-          extra-packages: |
-            any::rcmdcheck
-            any::remotes
-            any::testthat
-            github::DongyueXie/vebpm
-            github::stephenslab/mr.ash
-            github::DongyueXie/ebpm
-            github::DongyueXie/smashrgen
-          needs: check
-          dependencies: '"hard"'
+      - name: Install all dependencies
+        run: |
+          install.packages(c("remotes", "rcmdcheck", "testthat"), repos = "https://cloud.r-project.org")
+          remotes::install_github("DongyueXie/vebpm", upgrade = "never")
+          remotes::install_github("stephenslab/mr.ash", upgrade = "never")
+          remotes::install_github("DongyueXie/ebpm", upgrade = "never")
+          remotes::install_github("DongyueXie/smashrgen", upgrade = "never")
+          remotes::install_deps(dependencies = TRUE, repos = "https://cloud.r-project.org")
+        shell: Rscript {0}
 
       - uses: r-lib/actions/check-r-package@v2
         with:
