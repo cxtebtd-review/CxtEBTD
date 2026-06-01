@@ -54,14 +54,11 @@ jobs:
           )
           # GitHub packages in dependency order
           remotes::install_github("DongyueXie/vebpm", upgrade = "never")
+          remotes::install_github("stephenslab/mr.ashr", upgrade = "never")
           remotes::install_github("DongyueXie/ebpm", upgrade = "never")
           # smashrgen with dependencies=FALSE to skip unavailable mr.ash
           # (mr.ash is declared in smashrgen DESCRIPTION but never used by ebps)
-          remotes::install_github("DongyueXie/smashrgen", upgrade = "never",
-                                  dependencies = FALSE)
-          # Remaining CoSparTA dependencies from CRAN
-          remotes::install_deps(dependencies = TRUE,
-                               repos = "https://cloud.r-project.org")
+          remotes::install_github("xzhang0407/smashrgen", upgrade = "never")
         shell: Rscript {0}
 
       - uses: r-lib/actions/check-r-package@v2
