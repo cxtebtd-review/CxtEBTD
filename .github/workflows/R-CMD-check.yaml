@@ -53,7 +53,13 @@ jobs:
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: any::rcmdcheck any::remotes
+          extra-packages: |
+            any::rcmdcheck
+            any::remotes
+            any::testthat
+            github::DongyueXie/vebpm
+            github::DongyueXie/ebpm
+            github::DongyueXie/smashrgen
           needs: check
           dependencies: '"hard"'
 
