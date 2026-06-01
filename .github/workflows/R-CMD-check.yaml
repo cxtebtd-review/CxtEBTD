@@ -57,12 +57,13 @@ jobs:
           needs: check
           dependencies: '"hard"'
 
-      - name: Install GitHub dependencies
+      - name: Install GitHub dependencies and testthat
         run: |
           remotes::install_github("DongyueXie/vebpm", upgrade = "never")
           remotes::install_github("stephenslab/mr.ash", upgrade = "never")
           remotes::install_github("DongyueXie/ebpm", upgrade = "never")
           remotes::install_github("DongyueXie/smashrgen", upgrade = "never")
+          install.packages("testthat", repos = "https://cloud.r-project.org")
         shell: Rscript {0}
 
       - uses: r-lib/actions/check-r-package@v2
