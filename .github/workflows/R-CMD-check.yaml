@@ -41,23 +41,12 @@ jobs:
 
       - name: Strip GitHub-only deps from DESCRIPTION for pak
         run: |
-          desc <- readLines("DESCRIPTION")
-          # Remove Remotes: block
-          in_remotes <- FALSE
-          out <- c()
-          for (line in desc) {
-            if (grepl("^Remotes:", line)) { in_remotes <- TRUE; next }
-            if (in_remotes && grepl("^  ", line)) { next }
-            in_remotes <- FALSE
-            out <- c(out, line)
-          }
-          # Remove ebpm and smashrgen from Imports:
-          out <- gsub(",?\\s*\\bebpm\\b,?", "", out)
-          out <- gsub(",?\\s*\\bsmashrgen\\b,?", "", out)
-          # Clean up any double commas or trailing commas in Imports
-          out <- gsub(",\\s*,", ",", out)
-          out <- gsub(",\\s*$", "", out)
-          writeLines(out, "DESCRIPTION")
+          install.packages("desc", repos = "https://cloud.r-project.org")
+          d <- desc::desc("DESCRIPTION")
+          d$del_dep("ebpm")
+          d$del_dep("smashrgen")
+          d$del("Remotes")
+          d$write()
           cat("--- Modified DESCRIPTION ---\n")
           cat(readLines("DESCRIPTION"), sep = "\n")
         shell: Rscript {0}
